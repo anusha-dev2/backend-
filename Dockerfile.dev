@@ -1,0 +1,25 @@
+FROM maven:3.8-openjdk-11
+
+WORKDIR /workspace/app
+
+# Install development utilities and ffmpeg 8/8/25
+RUN apt-get update && \
+    apt-get install -y git curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+
+# Copy Maven wrapper and pom.xml
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+
+# Download dependencies (this layer will be cached unless pom.xml changes)
+RUN ./mvnw dependency:go-offline -B
+
+# Set up Spring Boot DevTools
+ENV SPRING_DEVTOOLS_RESTART_ENABLED=true
+ENV SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
+
+# Development entrypoint - runs application with hot reload
+CMD ["./mvnw", "spring-boot:run", "-Dspring-boot.run.jvmArguments='-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005'"]

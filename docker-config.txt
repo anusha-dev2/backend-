@@ -1,0 +1,91 @@
+// Dockerfile
+FROM openjdk:11-jdk-slim as build
+WORKDIR /workspace/app
+
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+COPY src src
+
+RUN ./mvnw package -DskipTests
+RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
+
+FROM openjdk:11-jre-slim
+VOLUME /tmp
+VOLUME /var/media-server/content
+
+ARG DEPENDENCY=/workspace/app/target/dependency
+COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
+COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
+COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
+
+ENTRYPOINT ["java","-cp","app:app/lib/*","com.mediaserver.MediaServerApplication"]
+
+// docker-compose.yml
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: media-server
+    restart: always
+    ports:
+      - "9000:9000"
+    environment:
+      - SPRING_DATA_MONGODB_HOST=mongo
+      - APP_DOMAIN=https://your-domain.com
+      - STRIPE_API_KEY=${STRIPE_API_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - APP_JWT_SECRET=${APP_JWT_SECRET}
+    volumes:
+      - media-content:/var/media-server/content
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:5.0
+    container_name: media-mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      # Uncomment and set values for authentication
+      # - MONGO_INITDB_ROOT_USERNAME=admin
+      # - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+      # - MONGO_INITDB_DATABASE=mediaserver
+    volumes:
+      - mongo-data:/data/db
+      # Uncomment to use init scripts
+      # - ./mongo-init:/docker-entrypoint-initdb.d
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:1.21-alpine
+    container_name: media-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+      - media-content:/var/media-server/content:ro  # Read-only access to content
+    depends_on:
+      - app
+    networks:
+      - app-network
+
+volumes:
+  mongo-data:
+  media-content:
+
+networks:
+  app-network:
+    driver: bridge
+
+

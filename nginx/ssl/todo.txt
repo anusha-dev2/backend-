@@ -1,0 +1,1 @@
+PLEASE GENERATE fullchain.pem and privkey.pem files and paste it into this folder

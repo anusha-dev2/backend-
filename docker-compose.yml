@@ -1,0 +1,71 @@
+
+
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: media-server
+    restart: always
+    ports:
+      - "9000:9000"
+    environment:
+      - SPRING_DATA_MONGODB_HOST=mongo
+      - APP_DOMAIN=https://your-domain.com
+      - STRIPE_API_KEY=${STRIPE_API_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - APP_JWT_SECRET=${APP_JWT_SECRET}
+    volumes:
+      - media-content:/var/media-server/content
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:5.0
+    container_name: media-mongo-dev
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+      # - ./mongo-init:/docker-entrypoint-initdb.d
+    networks:
+      - app-network
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=media-mongo-dev
+    depends_on:
+      - mongo
+    networks:
+      - app-network    
+
+  # maildev:
+  #   image: maildev/maildev:latest
+  #   container_name: maildev   # under service
+  #   restart: unless-stopped
+  #   ports:
+  #     - "1025:1025"
+  #     - "1080:1080"
+  #   networks:
+  #     - maildev 
+
+
+
+volumes:
+  mongo-data:
+  media-content:
+
+networks:
+  # maildev:
+  app-network:
+    driver: bridge
+

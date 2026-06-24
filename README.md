@@ -1,45 +1,70 @@
-**Edit a file, create a new file, and clone from Bitbucket in under 2 minutes**
+# Media Server Application
 
-When you're done, you can delete the content in this README and update the file with details for others getting started with your repository.
+A Spring Boot application for media server management with Stripe payment integration.
 
-*We recommend that you open this README in another tab as you perform the tasks below. You can [watch our video](https://youtu.be/0ocf7u76WSo) for a full demo of all the steps in this tutorial. Open the video in a new tab to avoid leaving Bitbucket.*
+## Features
 
----
+- User authentication and authorization
+- Content management
+- Device management
+- Playlist management
+- Stripe payment processing for subscriptions
+- Real-time notifications via WebSocket
 
-## Edit a file
+## Payment Testing Flow
 
-You’ll start by editing this README file to learn how to edit a file in Bitbucket.
+The payment system uses Stripe's hosted checkout page to handle payments. This bypasses frontend redirects and allows direct testing with test cards.
 
-1. Click **Source** on the left side.
-2. Click the README.md link from the list of files.
-3. Click the **Edit** button.
-4. Delete the following text: *Delete this line to make a change to the README from Bitbucket.*
-5. After making your change, click **Commit** and then **Commit** again in the dialog. The commit page will open and you’ll see the change you just made.
-6. Go back to the **Source** page.
+### Testing Steps
 
----
+1. **Create a Checkout Session**
+   - Use the `/payment/create-checkout-session` endpoint to create a Stripe checkout session.
+   - Requires: `planId` (subscription plan ID) and `Authorization` header with JWT token.
+   - Returns: `sessionId`
 
-## Create a file
+2. **Access Stripe Checkout**
+   - Navigate to: `https://checkout.stripe.com/pay/{sessionId}`
+   - This opens Stripe's hosted checkout page.
 
-Next, you’ll add a new file to this repository.
+3. **Complete Payment**
+   - Use Stripe test cards (e.g., 4242 4242 4242 4242 with any future expiry and CVC).
+   - Complete the payment form.
 
-1. Click the **New file** button at the top of the **Source** page.
-2. Give the file a filename of **contributors.txt**.
-3. Enter your name in the empty file space.
-4. Click **Commit** and then **Commit** again in the dialog.
-5. Go back to the **Source** page.
+4. **Post-Payment Redirect**
+   - **Success**: Redirects to `/payment/success?session_id={CHECKOUT_SESSION_ID}`
+     - This endpoint fetches session details from Stripe.
+     - Calls `PaymentService.processOneTimePayment(userId, paymentIntentId)` to record the payment.
+     - Returns success response with payment details.
 
-Before you move on, go ahead and explore the repository. You've already seen the **Source** page, but check out the **Commits**, **Branches**, and **Settings** pages.
+   - **Cancel**: Redirects to `/payment/cancel`
+     - Returns cancellation message.
 
----
+### Test Cards
 
-## Clone a repository
+- **Success**: 4242 4242 4242 4242
+- **Decline**: 4000 0000 0000 0002
+- **Require Authentication**: 4000 0025 0000 3155
 
-Use these steps to clone from SourceTree, our client for using the repository command-line free. Cloning allows you to work on your files locally. If you don't yet have SourceTree, [download and install first](https://www.sourcetreeapp.com/). If you prefer to clone from the command line, see [Clone a repository](https://confluence.atlassian.com/x/4whODQ).
+All test cards accept any future expiry date and any 3-digit CVC.
 
-1. You’ll see the clone button under the **Source** heading. Click that button.
-2. Now click **Check out in SourceTree**. You may need to create a SourceTree account or log in.
-3. When you see the **Clone New** dialog in SourceTree, update the destination path and name if you’d like to and then click **Clone**.
-4. Open the directory you just created to see your repository’s files.
+## Running the Application
 
-Now that you're more familiar with your Bitbucket repository, go ahead and add a new file locally. You can [push your change back to Bitbucket with SourceTree](https://confluence.atlassian.com/x/iqyBMg), or you can [add, commit,](https://confluence.atlassian.com/x/8QhODQ) and [push from the command line](https://confluence.atlassian.com/x/NQ0zDQ).
+1. Ensure you have Java 11+ and Maven installed.
+2. Set up environment variables:
+   - `STRIPE_API_KEY`: Your Stripe test/live API key
+   - `APP_DOMAIN`: Your application domain (e.g., http://localhost:9000)
+3. Run `mvn spring-boot:run`
+
+## API Documentation
+
+Use the provided Postman collections:
+- `Stripe_Payment_API.postman_collection.json`
+- `GroupEndpoints.postman_collection.json`
+- `MediaServerApplication.java.postman_collection.json`
+- `PaymentService_Postman_Collection.json`
+- `Playlist_API.postman_collection.json`
+- `Root_User_API.postman_collection.json`
+
+## Database
+
+The application uses MongoDB. Configure the connection in `application.properties`.

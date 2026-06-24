@@ -1,0 +1,221 @@
+:root {
+    --bg-color: #0d1117;
+    --text-color: #c9d1d9;
+    --primary-color: #58a6ff;
+    --primary-hover: #1f6feb;
+    --accent-color: #8a2be2;
+    --accent-hover: #6a1b9a;
+    --glass-bg: rgba(22, 27, 34, 0.65);
+    --glass-border: rgba(48, 54, 61, 0.7);
+    --input-bg: #010409;
+    --input-border: #30363d;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at top right, #1a1a2e, var(--bg-color));
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+body.player-body {
+    background: #000;
+    overflow: hidden;
+    padding: 0;
+}
+
+h1, h2 {
+    color: #fff;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header p {
+    color: #8b949e;
+    font-size: 0.95rem;
+}
+
+/* Glassmorphism */
+.glass-container {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    animation: fadeIn 0.8s ease forwards;
+}
+
+/* Cards */
+.card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Forms & Inputs */
+.input-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #a5d6ff;
+}
+
+input {
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
+}
+
+small {
+    margin-top: 6px;
+    color: #8b949e;
+    font-size: 0.8rem;
+}
+
+/* Buttons */
+.btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.btn.primary {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.btn.primary:hover {
+    background: var(--primary-hover);
+    transform: scale(1.02);
+}
+
+.btn.accent {
+    background: var(--accent-color);
+    color: #fff;
+}
+
+.btn.accent:hover {
+    background: var(--accent-hover);
+    transform: scale(1.02);
+}
+
+/* Utility */
+.hidden {
+    display: none !important;
+}
+
+.message {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.message.success {
+    background: rgba(46, 160, 67, 0.15);
+    color: #3fb950;
+    border: 1px solid rgba(46, 160, 67, 0.4);
+}
+
+.message.error {
+    background: rgba(248, 81, 73, 0.15);
+    color: #ff7b72;
+    border: 1px solid rgba(248, 81, 73, 0.4);
+}
+
+.status-text {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #8b949e;
+}
+
+/* Fullscreen Video Player */
+#videoContainer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Important for edge-to-edge video walls */
+}
+
+.debug-overlay {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #0f0;
+    padding: 8px;
+    font-family: monospace;
+    font-size: 12px;
+    border-radius: 4px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

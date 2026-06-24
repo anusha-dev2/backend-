@@ -1,0 +1,143 @@
+# version: '3.8'
+
+# services:
+#   app:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile.dev
+#     container_name: media-server-local-dev
+#     restart: no
+#     ports:
+#       - "9000:9000"
+#       - "35729:35729"  # LiveReload port
+#     environment:
+#       - SPRING_DATA_MONGODB_HOST=mongo
+#       - SPRING_PROFILES_ACTIVE=dev
+#       - APP_DOMAIN=http://localhost:9000
+#       - STRIPE_API_KEY=${STRIPE_API_KEY}
+#       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+#       - APP_JWT_SECRET=${APP_JWT_SECRET}
+#     volumes:
+#       - ./:/workspace/app
+#       - maven-repo:/root/.m2
+#       - media-content:/var/media-server/content
+#     depends_on:
+#       - mongo
+#     networks:
+#       - app-network-dev
+
+#   mongo:
+#     image: mongo:5.0
+#     container_name: media-mongo-local-dev
+#     restart: always
+#     ports:
+#       - "27019:27019"
+#     volumes:
+#       - mongo-data-dev:/data/db
+#       - ./mongo-init:/docker-entrypoint-initdb.d
+#     networks:
+#       - app-network-dev
+
+#   mongo-express:
+#     image: mongo-express
+#     container_name: mongo-express
+#     restart: always
+#     ports:
+#       - "9091:9091"
+#     environment:
+#       - ME_CONFIG_MONGODB_SERVER=media-mongo-local-dev
+#     depends_on:
+#       - mongo
+#     networks:
+#       - app-network-dev
+
+#   stripe-cli:
+#     image: stripe/stripe-cli
+#     container_name: stripe-cli
+#     command: listen --api-key ${STRIPE_API_KEY} --forward-to app:9000/api/payment/webhook
+#     environment:
+#       - STRIPE_API_KEY=${STRIPE_API_KEY}
+#     networks:
+#       - app-network-dev
+
+# volumes:
+#   mongo-data-dev:
+#   media-content:
+#   maven-repo:
+
+# networks:
+#   app-network-dev:
+#     driver: bridge
+
+
+
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: media-server-local
+    restart: no
+    ports:
+      - "9000:9000"
+      - "35729:35729"  # LiveReload port
+    environment:
+      - SPRING_DATA_MONGODB_HOST=mongo
+      - SPRING_PROFILES_ACTIVE=dev
+      - APP_DOMAIN=http://localhost:3000
+      - STRIPE_API_KEY=${STRIPE_API_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - APP_JWT_SECRET=${APP_JWT_SECRET}
+    volumes:
+      - ./:/workspace/app
+      - maven-repo:/root/.m2
+      - media-content:/var/media-server/content
+    depends_on:
+      - mongo
+    networks:
+      - app-network-dev
+
+  mongo:
+    image: mongo:5.0
+    container_name: media-mongo-dev
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data-dev:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d
+    networks:
+      - app-network-dev
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=media-mongo-dev
+    depends_on:
+      - mongo
+    networks:
+      - app-network-dev
+
+  stripe-cli:
+    image: stripe/stripe-cli
+    container_name: stripe-cli
+    command: listen --api-key ${STRIPE_API_KEY} --forward-to app:9000/api/payment/webhook
+    environment:
+      - STRIPE_API_KEY=${STRIPE_API_KEY}
+    networks:
+      - app-network-dev
+
+volumes:
+  mongo-data-dev:
+  media-content:
+  maven-repo:
+
+networks:
+  app-network-dev:
+    driver: bridge

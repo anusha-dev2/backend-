@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Signage Player</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="player-body">
+    <div id="setupOverlay" class="glass-container">
+        <h2>Setup Device Player</h2>
+        <div class="input-group">
+            <label for="deviceIdInput">Enter Device ID to listen for:</label>
+            <input type="text" id="deviceIdInput" placeholder="e.g. device_1">
+        </div>
+        <button id="connectBtn" class="btn primary">Connect & Listen</button>
+        <p id="connectionStatus" class="status-text">Disconnected</p>
+    </div>
+
+    <div id="videoContainer" class="hidden">
+        <video id="wallVideo" muted></video>
+        <div id="debugInfo" class="debug-overlay hidden">
+            <!-- Used to display latency and timing info -->
+        </div>
+    </div>
+
+    <!-- SockJS and STOMP -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    
+    <script src="player.js"></script>
+</body>
+</html>
